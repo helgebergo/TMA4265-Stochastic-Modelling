@@ -7,6 +7,7 @@
 # Given values
 theta <- seq(0.25, 0.50, by=0.005) # parameter grid of theta
 mu <- 0.5 # mean vector to n
+mu_conditional <- 0
 sigma <- 0.5^2 # variance squared
 phi_m <- 15 # correlation function parameter
 
@@ -28,14 +29,49 @@ for(i in 1:51){
   }
 }
 
+
 # Build covariance matrices Sigma
-Sigma_A  <- sigma * (1 + phi_m*H_A) %*% exp(-phi_m*H_A)
-Sigma_B  <- sigma * (1 + phi_m*H_B) %*% exp(-phi_m*H_B)
-Sigma_AB <- sigma * (1 + phi_m*H_AB) %*% exp(-phi_m*H_AB)
+Sigma_A  <- sigma * (1 + phi_m*H_A)  * exp(-phi_m*H_A)
+Sigma_B  <- sigma * (1 + phi_m*H_B)  * exp(-phi_m*H_B)
+Sigma_AB <- sigma * (1 + phi_m*H_AB) * exp(-phi_m*H_AB)
 
 
-#factorize SIGMA = LL'
-#draw n std norm z 
-#return x = mu + L*z
+# Calculate the answer
+E <- mu + Sigma_AB %*% solve(Sigma_B) %*% (theta_conditional - mu_conditional)
+
+
+# Calculating 90% confidence interval
+Var = Sigma_A - Sigma_AB %*% solve(Sigma_B) %*% t(Sigma_AB)
+upper = c()
+lower = c()
+z = 1.64
+for(i in 1:51){
+  upper[i] <- E[i] + z*sqrt(Var[i,i])
+  lower[i] <- E[i] - z*sqrt(Var[i,i])
+}
+
+require(plotrix) # Solution with plotrix
+plotCI(theta, E, ui=upper, li=lower)
+points(theta,E)
+
+df <- data.frame(theta,E,upper, lower)
+require(ggplot2) # Solution with ggplot
+ggplot(df, aes(x = theta, y = E)) +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymax = upper, ymin = lower))
+
+
+
+# Plotting 
+df <- data.frame(theta,E,theta_conditional,times_conditional,upper,lower)
+plot(theta,E,type='l')
+par(new=TRUE)
+plot(theta_conditional,times_conditional,col='red')
+
+require(ggplot2) # Solution with ggplot
+ggplot(df, aes(x = theta, y = E)) +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymax = upper, ymin = lower)) +
+  geom_point(aes(x = theta_conditional, t = times_conditional))
 
 
