@@ -5,15 +5,14 @@
 ## Problem 2 - Calibrating Climate Models
 
 # Given values
-theta <- seq(0.25, 0.50, by=0.005) # parameter grid of theta
+theta <- seq(0.25, 0.50, by=0.005) # mu_A
 mu <- 0.5 # mean vector to n
-mu_conditional <- 0
 sigma <- 0.5^2 # variance squared
 phi_m <- 15 # correlation function parameter
 
 # Conditional values 
-theta_conditional = c(0.3, 0.35, 0.39, 0.41, 0.45)
-times_conditional = c(0.5, 0.32, 0.40, 0.35, 0.60)
+theta_conditional = c(0.3, 0.35, 0.39, 0.41, 0.45) # mu_B 
+Y_conditional = c(0.5, 0.32, 0.40, 0.35, 0.60) # x_B 
 
 # Build distance matrices H
 ones <- as.matrix(rep(1.0, length(theta)));
@@ -37,7 +36,7 @@ Sigma_AB <- sigma * (1 + phi_m*H_AB) * exp(-phi_m*H_AB)
 
 
 # Calculate the answer
-E <- mu + Sigma_AB %*% solve(Sigma_B) %*% (theta_conditional - mu_conditional)
+Y <- theta + Sigma_AB %*% solve(Sigma_B) %*% (Y_conditional - theta_conditional)
 
 
 # Calculating 90% confidence interval
@@ -46,12 +45,12 @@ upper = c()
 lower = c()
 z = 1.64
 for(i in 1:51){
-  upper[i] <- E[i] + z*sqrt(Var[i,i])
-  lower[i] <- E[i] - z*sqrt(Var[i,i])
+  upper[i] <- Y[i] + z*sqrt(Var[i,i])
+  lower[i] <- Y[i] - z*sqrt(Var[i,i])
 }
 
 require(plotrix) # Solution with plotrix
-plotCI(theta, E, ui=upper, li=lower)
+plotCI(theta, Y, ui=upper, li=lower)
 points(theta,E)
 
 df <- data.frame(theta,E,upper, lower)
