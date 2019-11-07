@@ -35,8 +35,8 @@ Sigma_B  <- sigma * (1 + phi_m*H_B)  * exp(-phi_m*H_B)
 Sigma_AB <- sigma * (1 + phi_m*H_AB) * exp(-phi_m*H_AB)
 
 
-# Calculate the answer
-Y <- theta + Sigma_AB %*% solve(Sigma_B) %*% (Y_conditional - theta_conditional)
+# Calculate the expected value
+Y <- mu + Sigma_AB %*% solve(Sigma_B) %*% (Y_conditional - theta_conditional)
 
 
 # Calculating 90% confidence interval
@@ -49,28 +49,16 @@ for(i in 1:51){
   lower[i] <- Y[i] - z*sqrt(Var[i,i])
 }
 
+
+# Plotting
 require(plotrix) # Solution with plotrix
 plotCI(theta, Y, ui=upper, li=lower)
-points(theta,E)
-
-df <- data.frame(theta,E,upper, lower)
-require(ggplot2) # Solution with ggplot
-ggplot(df, aes(x = theta, y = E)) +
-  geom_point(size = 2) +
-  geom_errorbar(aes(ymax = upper, ymin = lower))
-
-
-
-# Plotting 
-df <- data.frame(theta,E,theta_conditional,times_conditional,upper,lower)
-plot(theta,E,type='l')
-par(new=TRUE)
-plot(theta_conditional,times_conditional,col='red')
-
-require(ggplot2) # Solution with ggplot
-ggplot(df, aes(x = theta, y = E)) +
-  geom_point(size = 2) +
-  geom_errorbar(aes(ymax = upper, ymin = lower)) +
-  geom_point(aes(x = theta_conditional, t = times_conditional))
+#points(theta,Y)
+# 
+# df <- data.frame(theta,Y,upper, lower)
+# require(ggplot2) # Solution with ggplot
+# ggplot(df, aes(x = theta, y = Y)) +
+#   geom_point(size = 2) +
+#   geom_errorbar(aes(ymax = upper, ymin = lower))
 
 
