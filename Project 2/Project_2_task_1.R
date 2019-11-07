@@ -40,7 +40,8 @@ for(i in 1:time){
 }
 
 
-plot(NULL, NULL, xlim = c(0, time), ylim = c(0.8, 2.2), xlab = "Time (days)", ylab = "State", cex.lab = 1.5, cex.axis = 1.5)
+plot(NULL, NULL, xlim = c(0, time), ylim = c(0.8, 2.2), xlab = "Time (days)", 
+     ylab = "State", cex.lab = 1.5, cex.axis = 1.5)
 for(i in 1:(length(x)-1)){
   lines(totalTime[i:(i+1)], rep(x[i], 2), lwd = 3)
 }
