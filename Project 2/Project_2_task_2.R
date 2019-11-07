@@ -3,16 +3,19 @@
 # November 2019
 
 ## Problem 2 - Calibrating Climate Models
+#rm(list = ls()) # clear environment and variables
 
 # Given values
-theta <- seq(0.25, 0.50, by=0.005) # mu_A
+theta <- seq(0.25, 0.50, by=0.005) 
 mu <- 0.5 # mean vector to n
 sigma <- 0.5^2 # variance squared
-phi_m <- 15 # correlation function parameter
+phi_m <- 15 # Matern type correlation function parameter
 
 # Conditional values 
 theta_conditional = c(0.3, 0.35, 0.39, 0.41, 0.45) # mu_B 
 Y_conditional = c(0.5, 0.32, 0.40, 0.35, 0.60) # x_B 
+#theta_conditional = c(0.3, 0.35, 0.39, 0.41, 0.45, 0.33) # mu_B 
+#Y_conditional = c(0.5, 0.32, 0.40, 0.35, 0.60, 0.40) # x_B 
 
 # Build distance matrices H
 ones <- as.matrix(rep(1.0, length(theta)));
@@ -21,9 +24,9 @@ H_A <- abs(theta %*% t(ones) - ones %*% t(theta));
 ones <- as.matrix(rep(1.0, length(theta_conditional)));
 H_B <- abs(theta_conditional %*% t(ones) - ones %*% t(theta_conditional)); 
 
-H_AB <- matrix(0, nrow = 51, ncol = 5)
+H_AB <- matrix(0, nrow = 51, ncol = length(theta_conditional))
 for(i in 1:51){
-  for(j in 1:5){
+  for(j in 1:length(theta_conditional)){
     H_AB[i,j] <- abs(theta[i]-theta_conditional[j])
   }
 }
@@ -44,21 +47,42 @@ Var = Sigma_A - Sigma_AB %*% solve(Sigma_B) %*% t(Sigma_AB)
 upper = c()
 lower = c()
 z = 1.64
-for(i in 1:51){
-  upper[i] <- Y[i] + z*sqrt(Var[i,i])
-  lower[i] <- Y[i] - z*sqrt(Var[i,i])
-}
-
+upper <- Y + z*sqrt(diag(Var))
+lower <- Y - z*sqrt(diag(Var))
 
 # Plotting
 require(plotrix) # Solution with plotrix
 plotCI(theta, Y, ui=upper, li=lower)
 #points(theta,Y)
-# 
+
+ 
 # df <- data.frame(theta,Y,upper, lower)
 # require(ggplot2) # Solution with ggplot
 # ggplot(df, aes(x = theta, y = Y)) +
 #   geom_point(size = 2) +
 #   geom_errorbar(aes(ymax = upper, ymin = lower))
+
+
+# Simple plot
+#plot(theta,Y)
+#points(theta,upper)
+#points(theta,lower)
+
+
+
+
+## 2.b)
+
+# Calculating the treshold 
+#z <- vector('numeric',51)
+z <- pnorm(lower, mean = 0.3, sd = diag(Var), lower.tail = TRUE)
+
+#plot(theta,z)
+
+
+## 2.c)
+
+
+
 
 
