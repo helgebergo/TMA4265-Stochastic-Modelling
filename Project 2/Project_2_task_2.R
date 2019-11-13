@@ -5,6 +5,7 @@
 ## Problem 2 - Calibrating Climate Models
 #rm(list = ls()) # clear environment and variables
 #library(Matrix)
+library(latex2exp)
 
 # Given values
 theta <- seq(0.25, 0.50, by=0.005) # mu_A
